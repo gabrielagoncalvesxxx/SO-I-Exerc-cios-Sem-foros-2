@@ -1,39 +1,28 @@
-import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Controler {
-    private static final Semaphore semaforoSaque = new Semaphore(1);
-    private static final Semaphore semaforoDeposito = new Semaphore(1);
+    private static final Semaphore semaforo = new Semaphore(1);
 
     public static void executarSimulacao() {
-        Random random = new Random();
-        for (int i = 0; i < 20; i++) {
-            int tipoTransacao = random.nextInt(2); // 0 para saque, 1 para depósito
-            new Thread(new Transacao(tipoTransacao)).start();
+        for (int i = 0; i < 10; i++) {
+            new Thread(new Carro(i)).start();
         }
     }
 
-    static class Transacao implements Runnable {
-        private final int tipo; // 0 para saque, 1 para depósito
+    static class Carro implements Runnable {
+        private final int id;
 
-        Transacao(int tipo) {
-            this.tipo = tipo;
+        Carro(int id) {
+            this.id = id;
         }
 
         @Override
         public void run() {
             try {
-                if (tipo == 0) { // Saque
-                    semaforoSaque.acquire();
-                    View.mostrarProcessandoTransacao(tipo);
-                    Thread.sleep(1000); 
-                    semaforoSaque.release();
-                } else { // Depósito
-                    semaforoDeposito.acquire();
-                    View.mostrarProcessandoTransacao(tipo);
-                    Thread.sleep(1000); 
-                    semaforoDeposito.release();
-                }
+                semaforo.acquire();
+                View.mostrarCarroPassando(id);
+                Thread.sleep(1000); // Simula o tempo que o carro leva para passar
+                semaforo.release();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
